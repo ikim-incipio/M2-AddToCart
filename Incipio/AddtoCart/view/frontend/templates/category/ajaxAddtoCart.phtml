@@ -1,0 +1,36 @@
+<script>
+require(['jquery'], function($){
+	$(document).on('click', '.action.tocart.primary', function(e){
+		// enable add to cart button on product light box
+		if ($(this).parents('.productViewLightBox').length){
+			return;
+		}
+		e.preventDefault();
+		var formAction = $(this).parent().attr('action');
+		var url = formAction.substring(0, formAction.indexOf('?'));
+		$.ajax({
+			url: url,
+			method: 'POST',
+			dataType: 'html',
+			contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+			timeout: 10000,
+			cache: true,
+			showLoader: true,
+			context: $('.body'),
+		}).done(function(result){
+			if (result){
+				var main = result.substring(result.indexOf('<div class="product-info-main">'), result.indexOf('<div class="product media">'));
+				var media = result.substring(result.indexOf('<div class="product media">'), result.indexOf('<div class="product info detailed">')-1);
+				$('body').append('<div class="lightBoxWrapper"><div class="overlay"></div><div class="productViewLightBox"><i class="closeLightBox fa fa-remove"></i>'+media+main+'</div></div>');
+				$('body').trigger('contentUpdated');
+			}
+		}).fail(function(jqXHR, statusText){
+			console.log(statusText);
+		});
+	});
+
+	$(document).on('click', '.closeLightBox', function(){
+		$('.lightBoxWrapper').remove();
+	});
+});
+</script>
